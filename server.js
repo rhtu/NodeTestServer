@@ -1,6 +1,7 @@
 #!/bin/env node
 //  OpenShift sample Node application
 var express = require('express');
+var http = require('http');
 var fs      = require('fs');
 
 
@@ -104,6 +105,20 @@ var SampleApp = function() {
             res.setHeader('Content-Type', 'text/html');
             res.send(self.cache_get('index.html') );
         };
+        self.routes['/listUsers'] = function (req, res) {
+            fs.readFile( __dirname + "/" + "users.json", 'utf8', function (err, data) {
+            console.log( data );
+            res.send( data );
+            });
+        };
+
+        self.routes['/invalidJson'] = function (req, res) {
+            fs.readFile( __dirname + "/" + "invalidJson.json", 'utf8', function (err, data) {
+            console.log( data );
+            res.send( data );
+            });
+        };
+
     };
 
 
@@ -113,7 +128,8 @@ var SampleApp = function() {
      */
     self.initializeServer = function() {
         self.createRoutes();
-        self.app = express.createServer();
+        self.app = express();
+        self.server = http.createServer(self.app);
 
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
@@ -134,7 +150,6 @@ var SampleApp = function() {
         self.initializeServer();
     };
 
-
     /**
      *  Start the server (starts up the sample application).
      */
@@ -148,11 +163,10 @@ var SampleApp = function() {
 
 };   /*  Sample Application.  */
 
-
-
 /**
  *  main():  Main code.
  */
+
 var zapp = new SampleApp();
 zapp.initialize();
 zapp.start();
